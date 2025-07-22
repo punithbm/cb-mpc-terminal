@@ -24,7 +24,6 @@ const LogTerminal: React.FC<LogTerminalProps> = ({ index }) => {
         foreground: "#ffffff",
         cursor: "#ffffff",
         cursorAccent: "#000000",
-        selection: "rgba(255, 255, 255, 0.3)",
         black: "#1e1e1e",
         red: "#f14c4c",
         green: "#23d18b",

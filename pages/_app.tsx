@@ -42,6 +42,11 @@ export default function App({ Component, pageProps }: AppProps) {
         ::-webkit-scrollbar-thumb:hover {
           background: #777777;
         }
+
+        /* Custom xterm selection color */
+        .xterm .xterm-selection div {
+          background-color: rgba(255, 255, 255, 0.3) !important;
+        }
       `}</style>
       <Component {...pageProps} />
     </>

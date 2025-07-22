@@ -1,1 +1,1 @@
-self.__REACT_LOADABLE_MANIFEST="{\"terminal/[index].tsx -> ../../components/LogTerminal\":{\"id\":\"terminal/[index].tsx -> ../../components/LogTerminal\",\"files\":[\"static/chunks/components_LogTerminal_tsx.js\"]}}"
+self.__REACT_LOADABLE_MANIFEST='{"terminal/[index].tsx -> ../../components/LogTerminal":{"id":7452,"files":["static/chunks/c41c7b0b.9fda6fc847f76421.js","static/css/85fa6dafca566008.css","static/chunks/452.b521536aa1f49240.js"]}}';
