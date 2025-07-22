@@ -56,7 +56,17 @@ const LogTerminal: React.FC<LogTerminalProps> = ({ index }) => {
 
     // Open terminal in DOM element
     terminal.current.open(terminalRef.current);
-    fitAddon.current.fit();
+
+    // Add a small delay before fitting to ensure DOM is ready
+    setTimeout(() => {
+      if (fitAddon.current && terminal.current) {
+        try {
+          fitAddon.current.fit();
+        } catch (error) {
+          console.warn("Terminal fit error:", error);
+        }
+      }
+    }, 100);
 
     // Handle keyboard shortcuts
     terminal.current.onKey(({ key, domEvent }) => {
