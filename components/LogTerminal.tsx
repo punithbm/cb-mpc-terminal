@@ -80,7 +80,7 @@ const LogTerminal: React.FC<LogTerminalProps> = ({ index }) => {
     // Set up SSE connection
     const connectToSSE = () => {
       setConnectionStatus("connecting");
-      eventSource.current = new EventSource(`/api/logs/${index}`);
+      eventSource.current = new EventSource(`/api/stream/${index}`);
 
       eventSource.current.onopen = () => {
         setConnectionStatus("connected");
