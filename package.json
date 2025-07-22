@@ -6,7 +6,19 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "pm2:start": "pm2 start ecosystem.config.js --env production",
+    "pm2:dev": "pm2 start ecosystem.config.js --env development",
+    "pm2:staging": "pm2 start ecosystem.config.js --env staging",
+    "pm2:stop": "pm2 stop cb-mpc-terminal",
+    "pm2:restart": "pm2 restart cb-mpc-terminal",
+    "pm2:reload": "pm2 reload cb-mpc-terminal",
+    "pm2:delete": "pm2 delete cb-mpc-terminal",
+    "pm2:logs": "pm2 logs cb-mpc-terminal",
+    "pm2:monit": "pm2 monit",
+    "pm2:status": "pm2 status",
+    "pm2:save": "pm2 save",
+    "pm2:resurrect": "pm2 resurrect"
   },
   "dependencies": {
     "next": "14.0.0",
