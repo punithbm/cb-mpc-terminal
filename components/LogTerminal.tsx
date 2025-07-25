@@ -111,11 +111,56 @@ const LogTerminal: React.FC<LogTerminalProps> = ({ index }) => {
 
       // Handle keyboard shortcuts
       term.onKey(({ key, domEvent }) => {
-        if ((domEvent.metaKey || domEvent.ctrlKey) && domEvent.key === "k") {
+        console.log("Key pressed:", {
+          key: domEvent.key,
+          code: domEvent.code,
+          metaKey: domEvent.metaKey,
+          ctrlKey: domEvent.ctrlKey,
+          altKey: domEvent.altKey,
+          shiftKey: domEvent.shiftKey,
+        });
+
+        // Handle Cmd+K (Mac) or Ctrl+K (Windows/Linux)
+        // Check for both 'k' and 'K' and use both meta and ctrl for compatibility
+        if ((domEvent.metaKey || domEvent.ctrlKey) && (domEvent.key.toLowerCase() === "k" || domEvent.code === "KeyK")) {
           domEvent.preventDefault();
+          domEvent.stopPropagation();
+          console.log("Clearing terminal via onKey...");
           term.clear();
+          return false;
         }
       });
+
+      // Make terminal focusable and add click handler to focus
+      element.setAttribute("tabindex", "0");
+      element.addEventListener("click", () => {
+        element.focus();
+        term.focus();
+      });
+
+      // Also add global keyboard listener for when terminal is focused
+      const handleGlobalKeyDown = (event: KeyboardEvent) => {
+        // Only handle if the terminal container is focused or active
+        if (document.activeElement === element || element.contains(document.activeElement)) {
+          if ((event.metaKey || event.ctrlKey) && (event.key.toLowerCase() === "k" || event.code === "KeyK")) {
+            event.preventDefault();
+            event.stopPropagation();
+            console.log("Clearing terminal via global listener...");
+            term.clear();
+          }
+        }
+      };
+
+      // Add global event listener
+      document.addEventListener("keydown", handleGlobalKeyDown);
+
+      // Store the cleanup function
+      const cleanup = () => {
+        document.removeEventListener("keydown", handleGlobalKeyDown);
+      };
+
+      // Store cleanup in a way we can access it later
+      (term as any)._customCleanup = cleanup;
 
       return true;
     } catch (error) {
@@ -250,6 +295,10 @@ const LogTerminal: React.FC<LogTerminalProps> = ({ index }) => {
   useEffect(() => {
     return () => {
       if (terminal.current) {
+        // Call custom cleanup if it exists
+        if ((terminal.current as any)._customCleanup) {
+          (terminal.current as any)._customCleanup();
+        }
         terminal.current.dispose();
       }
     };
@@ -446,7 +495,7 @@ const LogTerminal: React.FC<LogTerminalProps> = ({ index }) => {
         }}
       >
         <span style={{ color: "#58a6ff", fontWeight: "500" }}>⌘+K</span>
-        <span style={{ margin: "0 4px" }}>/</span>
+        <span style={{ margin: "0 4px" }}>or</span>
         <span style={{ color: "#58a6ff", fontWeight: "500" }}>Ctrl+K</span>
         <span style={{ marginLeft: "4px" }}>to clear</span>
       </div>
