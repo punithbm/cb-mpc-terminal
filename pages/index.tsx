@@ -103,14 +103,14 @@ const HomePage: React.FC = () => {
                     e.currentTarget.style.backgroundColor = "#333333";
                   }}
                 >
-                  <div style={{ fontSize: "1.2rem", fontWeight: "bold" }}>Terminal #{index}</div>
+                  <div style={{ fontSize: "1.2rem", fontWeight: "bold" }}>Party #{index} Terminal</div>
                   <div style={{ fontSize: "0.9rem", color: "#cccccc", marginTop: "0.5rem" }}>threshold-ecdsa-web@{index}</div>
                 </Link>
               ))}
             </div>
           </section>
 
-          {/* Custom Terminal Access */}
+          {/* // Custom Terminal Access
           <section style={{ marginBottom: "3rem" }}>
             <h2
               style={{
@@ -172,7 +172,7 @@ const HomePage: React.FC = () => {
                 Open
               </button>
             </form>
-          </section>
+          </section> */}
 
           {/* Instructions */}
           <section>
@@ -202,7 +202,7 @@ const HomePage: React.FC = () => {
                 </li>
                 <li style={{ marginBottom: "0.5rem" }}>Terminals will automatically reconnect if the connection is lost</li>
                 <li>
-                  Each terminal streams logs from <code style={{ backgroundColor: "#1e1e1e", padding: "0.2rem 0.4rem", borderRadius: "3px" }}>threshold-ecdsa-web@{"{index}"}</code> systemd service
+                  Each terminal streams logs from <code style={{ backgroundColor: "#1e1e1e", padding: "0.2rem 0.4rem", borderRadius: "3px" }}>threshold-ecdsa-web</code> systemd service
                 </li>
               </ul>
             </div>

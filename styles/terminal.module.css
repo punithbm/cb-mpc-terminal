@@ -1,0 +1,38 @@
+/* Import better monospace fonts */
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600&display=swap");
+
+/* Terminal container improvements */
+.terminalContainer {
+  font-feature-settings: "liga" 1, "calt" 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeSpeed;
+}
+
+/* Improve xterm rendering */
+.terminalContainer :global(.xterm-screen) {
+  font-feature-settings: "liga" 1, "calt" 1;
+}
+
+.terminalContainer :global(.xterm-viewport) {
+  background-color: #0d1117 !important;
+}
+
+/* Custom scrollbar for better UX */
+.terminalContainer :global(.xterm-viewport::-webkit-scrollbar) {
+  width: 8px;
+}
+
+.terminalContainer :global(.xterm-viewport::-webkit-scrollbar-track) {
+  background: #161b22;
+}
+
+.terminalContainer :global(.xterm-viewport::-webkit-scrollbar-thumb) {
+  background: #30363d;
+  border-radius: 4px;
+}
+
+.terminalContainer :global(.xterm-viewport::-webkit-scrollbar-thumb:hover) {
+  background: #484f58;
+}

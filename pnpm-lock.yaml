@@ -14,6 +14,9 @@ dependencies:
   react-dom:
     specifier: ^18.0.0
     version: 18.0.0(react@18.0.0)
+  ws:
+    specifier: ^8.18.0
+    version: 8.18.0
   xterm:
     specifier: ^5.3.0
     version: 5.3.0
@@ -31,6 +34,9 @@ devDependencies:
   '@types/react-dom':
     specifier: ^18.0.0
     version: 18.0.0
+  '@types/ws':
+    specifier: ^8.5.0
+    version: 8.5.0
   eslint:
     specifier: ^8.0.0
     version: 8.0.0
@@ -279,6 +285,12 @@ packages:
 
   /@types/scheduler@0.26.0:
     resolution: {integrity: sha512-WFHp9YUJQ6CKshqoC37iOlHnQSmxNc795UhB26CyBBttrN9svdIrUjl/NjnNmfcwtncN0h/0PPAFWv9ovP8mLA==}
+    dev: true
+
+  /@types/ws@8.5.0:
+    resolution: {integrity: sha512-mTClfhq5cuGyW4jthaFuig6Q8OVfB3IRyZfN/9SCyJtiM5H0SubwM89cHoT9UngO6HyUFic88HvT1zSNLNyxWA==}
+    dependencies:
+      '@types/node': 20.0.0
     dev: true
 
   /@typescript-eslint/parser@6.21.0(eslint@8.0.0)(typescript@5.0.2):
@@ -2771,6 +2783,19 @@ packages:
   /wrappy@1.0.2:
     resolution: {integrity: sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ==}
     dev: true
+
+  /ws@8.18.0:
+    resolution: {integrity: sha512-8VbfWfHLbbwu3+N6OKsOMpBdT4kXPDDB9cJk2bJ6mh9ucxdlnNvH1e+roYkKmN9Nxw2yjz7VzeO9oOz2zJ04Pw==}
+    engines: {node: '>=10.0.0'}
+    peerDependencies:
+      bufferutil: ^4.0.1
+      utf-8-validate: '>=5.0.2'
+    peerDependenciesMeta:
+      bufferutil:
+        optional: true
+      utf-8-validate:
+        optional: true
+    dev: false
 
   /xterm-addon-fit@0.8.0(xterm@5.3.0):
     resolution: {integrity: sha512-yj3Np7XlvxxhYF/EJ7p3KHaMt6OdwQ+HDu573Vx1lRXsVxOcnVJs51RgjZOouIZOczTsskaS+CpXspK81/DLqw==}

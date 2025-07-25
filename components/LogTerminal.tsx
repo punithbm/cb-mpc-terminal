@@ -54,37 +54,46 @@ const LogTerminal: React.FC<LogTerminalProps> = ({ index }) => {
       // Create terminal instance with explicit dimensions
       const term = new Terminal({
         theme: {
-          background: "#1e1e1e",
-          foreground: "#ffffff",
-          cursor: "#ffffff",
-          cursorAccent: "#000000",
-          black: "#1e1e1e",
-          red: "#f14c4c",
-          green: "#23d18b",
-          yellow: "#f5f543",
-          blue: "#3b8eea",
-          magenta: "#d670d6",
-          cyan: "#29b8db",
-          white: "#e5e5e5",
-          brightBlack: "#666666",
-          brightRed: "#f14c4c",
-          brightGreen: "#23d18b",
-          brightYellow: "#f5f543",
-          brightBlue: "#3b8eea",
-          brightMagenta: "#d670d6",
-          brightCyan: "#29b8db",
-          brightWhite: "#ffffff",
+          background: "#0d1117", // Darker, more professional background
+          foreground: "#e6edf3", // Softer white for better readability
+          cursor: "#58a6ff", // Blue cursor for better visibility
+          cursorAccent: "#0d1117",
+          black: "#484f58",
+          red: "#ff7b72",
+          green: "#7ee787",
+          yellow: "#f2cc60",
+          blue: "#79c0ff",
+          magenta: "#d2a8ff",
+          cyan: "#39c5cf",
+          white: "#e6edf3",
+          brightBlack: "#6e7681",
+          brightRed: "#ffa198",
+          brightGreen: "#56d364",
+          brightYellow: "#e3b341",
+          brightBlue: "#58a6ff",
+          brightMagenta: "#bc8cff",
+          brightCyan: "#39c5cf",
+          brightWhite: "#f0f6fc",
         },
-        fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
-        fontSize: 13,
-        lineHeight: 1.2,
+        fontFamily: '"JetBrains Mono", "Fira Code", "SF Mono", Monaco, Consolas, "Ubuntu Mono", monospace',
+        fontSize: 14, // Increased from 13
+        fontWeight: "400", // Normal weight
+        fontWeightBold: "600", // Semi-bold for bold text
+        lineHeight: 1.4, // Increased line height for better readability
+        letterSpacing: 0.5, // Slight letter spacing
         cursorBlink: true,
         cursorStyle: "block",
+        cursorWidth: 2, // Thicker cursor
         scrollback: 10000,
         tabStopWidth: 4,
-        allowTransparency: true,
+        allowTransparency: false, // Disable transparency for better contrast
         cols: 80,
         rows: 24,
+        // Additional readability options
+        smoothScrollDuration: 0,
+        fastScrollModifier: "alt",
+        fastScrollSensitivity: 5,
+        scrollSensitivity: 3,
       });
 
       // Create and load fit addon
@@ -140,7 +149,7 @@ const LogTerminal: React.FC<LogTerminalProps> = ({ index }) => {
     // Set up WebSocket connection
     const connectToWebSocket = () => {
       // Use your server's WebSocket URL - adjust this to match your setup
-      const wsUrl = `ws://your-server-ip:3005`; // Replace with your actual server IP
+      const wsUrl = `wss://ws.logs.cb-mpc.surge.dev`; // Replace with your actual server IP
       console.log(`Attempting to connect to ${wsUrl}`);
       setConnectionStatus("connecting");
 
@@ -169,11 +178,13 @@ const LogTerminal: React.FC<LogTerminalProps> = ({ index }) => {
               case "history":
                 terminal.current.write(`\r\n[INFO] Loading recent log history...\r\n`);
                 data.lines.forEach((line: string) => {
-                  terminal.current?.write(`${line}\r\n`);
+                  const formattedLine = formatLogLine(line);
+                  terminal.current?.write(`${formattedLine}\r\n`);
                 });
                 break;
               case "log":
-                terminal.current.write(`${data.line}\r\n`);
+                const formattedLine = formatLogLine(data.line);
+                terminal.current.write(`${formattedLine}\r\n`);
                 break;
               case "info":
                 terminal.current.write(`\r\n[INFO] ${data.message}\r\n`);
@@ -277,49 +288,124 @@ const LogTerminal: React.FC<LogTerminalProps> = ({ index }) => {
     }
   };
 
+  // Add this function to calculate responsive font size
+  const getResponsiveFontSize = () => {
+    const width = window.innerWidth;
+    if (width < 768) return 12; // Mobile
+    if (width < 1024) return 13; // Tablet
+    return 14; // Desktop
+  };
+
+  // Enhanced helper function to format log lines with colors
+  const formatLogLine = (line: string) => {
+    // Match timestamp pattern: 2025/07/25 09:56:58
+    const timestampRegex = /^(\d{4}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2})\s+(.*)$/;
+    const match = line.match(timestampRegex);
+
+    if (match) {
+      const timestamp = match[1];
+      const content = match[2];
+
+      // Color codes for different elements
+      let formattedContent = content;
+
+      // Color different log levels
+      if (content.includes("❌") || content.includes("ERROR") || content.includes("failed")) {
+        formattedContent = `\x1b[91m${content}\x1b[0m`; // Bright red
+      } else if (content.includes("⚠️") || content.includes("WARN")) {
+        formattedContent = `\x1b[93m${content}\x1b[0m`; // Bright yellow
+      } else if (content.includes("✅") || content.includes("SUCCESS") || content.includes("completed")) {
+        formattedContent = `\x1b[92m${content}\x1b[0m`; // Bright green
+      } else if (content.includes("🔄") || content.includes("INFO") || content.includes("Auto-executing")) {
+        formattedContent = `\x1b[94m${content}\x1b[0m`; // Bright blue
+      } else if (content.includes("🔏") || content.includes("detected")) {
+        formattedContent = `\x1b[95m${content}\x1b[0m`; // Bright magenta
+      }
+
+      // Return formatted line with dim timestamp and colored content
+      return `\x1b[90m${timestamp}\x1b[0m ${formattedContent}`;
+    }
+
+    // If no timestamp found, return original line
+    return line;
+  };
+
   return (
     <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
       {/* Header Bar */}
       <div
         style={{
           height: "40px",
-          backgroundColor: "#333333",
-          color: "#ffffff",
+          backgroundColor: "#21262d", // Darker, more modern background
+          color: "#f0f6fc", // Brighter white for better contrast
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
           padding: "0 16px",
           fontSize: "14px",
+          fontFamily: '"JetBrains Mono", "Fira Code", "SF Mono", Monaco, Consolas, monospace', // Same font as terminal
           fontWeight: "500",
-          borderBottom: "1px solid #555555",
+          letterSpacing: "0.3px", // Slight letter spacing for readability
+          borderBottom: "1px solid #30363d", // Softer border color
+          boxShadow: "0 1px 0 rgba(255, 255, 255, 0.03)", // Subtle highlight
         }}
       >
-        <span>Threshold ECDSA Web #{index} Logs</span>
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+        <span
+          style={{
+            fontSize: "18px",
+            fontWeight: "600", // Semi-bold for the title
+            color: "#58a6ff", // Blue accent color for the title
+          }}
+        >
+          Cb MPC Party #{index} Logs
+        </span>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            fontSize: "12px",
+            fontWeight: "400", // Normal weight for status
+          }}
+        >
           <div
             style={{
               width: "8px",
               height: "8px",
               borderRadius: "50%",
               backgroundColor: getStatusColor(),
+              boxShadow: `0 0 4px ${getStatusColor()}33`, // Subtle glow effect
             }}
           />
-          <span style={{ fontSize: "12px" }}>{getStatusText()}</span>
+          <span
+            style={{
+              fontSize: "12px",
+              color: "#8b949e", // Muted color for status text
+              fontFamily: '"JetBrains Mono", monospace',
+            }}
+          >
+            {getStatusText()}
+          </span>
         </div>
       </div>
 
       {/* Terminal */}
       <div
         ref={terminalRef}
+        className="terminal-container" // Make sure this class is here
         style={{
           flex: 1,
           minHeight: "400px",
           height: "calc(100vh - 64px)",
           width: "100%",
-          backgroundColor: "#1e1e1e",
+          backgroundColor: "#0d1117", // Match the terminal background
           overflow: "hidden",
           position: "relative",
           display: "block",
+          fontFeatureSettings: '"liga" 1, "calt" 1',
+          WebkitFontSmoothing: "antialiased",
+          MozOsxFontSmoothing: "grayscale",
+          textRendering: "optimizeSpeed",
         }}
       >
         {!isTerminalReady && (
@@ -329,8 +415,9 @@ const LogTerminal: React.FC<LogTerminalProps> = ({ index }) => {
               top: "50%",
               left: "50%",
               transform: "translate(-50%, -50%)",
-              color: "#ffffff",
+              color: "#e6edf3", // Updated color
               fontSize: "14px",
+              fontFamily: '"JetBrains Mono", monospace',
               zIndex: 1,
             }}
           >
@@ -343,16 +430,38 @@ const LogTerminal: React.FC<LogTerminalProps> = ({ index }) => {
       <div
         style={{
           height: "24px",
-          backgroundColor: "#2d2d2d",
-          color: "#888888",
+          backgroundColor: "#161b22", // Darker background
+          color: "#7d8590", // Muted text color
           display: "flex",
           alignItems: "center",
           padding: "0 16px",
           fontSize: "11px",
-          borderTop: "1px solid #555555",
+          fontFamily: '"JetBrains Mono", "Fira Code", monospace', // Consistent font
+          letterSpacing: "0.2px",
+          borderTop: "1px solid #21262d", // Softer border
         }}
       >
-        Press ⌘+K (Mac) or Ctrl+K (Windows/Linux) to clear terminal
+        Press{" "}
+        <span
+          style={{
+            color: "#58a6ff",
+            fontWeight: "500",
+            padding: "0 2px",
+          }}
+        >
+          ⌘+K
+        </span>{" "}
+        (Mac) or{" "}
+        <span
+          style={{
+            color: "#58a6ff",
+            fontWeight: "500",
+            padding: "0 2px",
+          }}
+        >
+          Ctrl+K
+        </span>{" "}
+        (Windows/Linux) to clear terminal
       </div>
     </div>
   );

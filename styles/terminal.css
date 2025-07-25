@@ -1,0 +1,48 @@
+/* Import better monospace fonts */
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600&display=swap");
+
+/* Terminal container improvements */
+.terminal-container {
+  font-feature-settings: "liga" 1, "calt" 1; /* Enable ligatures */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeSpeed;
+}
+
+/* Improve xterm rendering */
+.xterm-screen {
+  font-feature-settings: "liga" 1, "calt" 1;
+}
+
+.xterm-viewport {
+  background-color: #0d1117 !important;
+}
+
+/* Custom scrollbar for better UX */
+.xterm-viewport::-webkit-scrollbar {
+  width: 8px;
+}
+
+.xterm-viewport::-webkit-scrollbar-track {
+  background: #161b22;
+}
+
+.xterm-viewport::-webkit-scrollbar-thumb {
+  background: #30363d;
+  border-radius: 4px;
+}
+
+.xterm-viewport::-webkit-scrollbar-thumb:hover {
+  background: #484f58;
+}
+
+/* Add selection color styling */
+.terminal-container .xterm-selection div {
+  background-color: #264f78 !important;
+}
+
+/* Alternative approach for text selection */
+.terminal-container ::selection {
+  background-color: #264f78;
+}
