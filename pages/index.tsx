@@ -262,7 +262,7 @@ const HomePage: React.FC = () => {
           </div>
 
           {/* Features Section */}
-          <div
+          {/* <div
             style={{
               backgroundColor: "#161b22",
               border: "1px solid #30363d",
@@ -391,7 +391,7 @@ const HomePage: React.FC = () => {
                 </p>
               </div>
             </div>
-          </div>
+          </div> */}
         </main>
 
         {/* Footer */}
