@@ -6,7 +6,7 @@ const HomePage: React.FC = () => {
   const [customIndex, setCustomIndex] = useState("");
 
   // Pre-defined terminal links (you can modify this list)
-  const predefinedTerminals = [1, 2, 3, 4, 5];
+  const predefinedTerminals = [1, 2, 3, 4];
 
   const handleCustomSubmit = (e: React.FormEvent) => {
     e.preventDefault();
