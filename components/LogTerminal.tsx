@@ -13,69 +13,94 @@ const LogTerminal: React.FC<LogTerminalProps> = ({ index }) => {
   const fitAddon = useRef<FitAddon | null>(null);
   const eventSource = useRef<EventSource | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<"connecting" | "connected" | "error" | "disconnected">("connecting");
+  const [isTerminalReady, setIsTerminalReady] = useState(false);
 
   useEffect(() => {
     if (!terminalRef.current) return;
 
-    // Initialize xterm terminal
-    terminal.current = new Terminal({
-      theme: {
-        background: "#1e1e1e",
-        foreground: "#ffffff",
-        cursor: "#ffffff",
-        cursorAccent: "#000000",
-        black: "#1e1e1e",
-        red: "#f14c4c",
-        green: "#23d18b",
-        yellow: "#f5f543",
-        blue: "#3b8eea",
-        magenta: "#d670d6",
-        cyan: "#29b8db",
-        white: "#e5e5e5",
-        brightBlack: "#666666",
-        brightRed: "#f14c4c",
-        brightGreen: "#23d18b",
-        brightYellow: "#f5f543",
-        brightBlue: "#3b8eea",
-        brightMagenta: "#d670d6",
-        brightCyan: "#29b8db",
-        brightWhite: "#ffffff",
-      },
-      fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
-      fontSize: 13,
-      lineHeight: 1.2,
-      cursorBlink: true,
-      cursorStyle: "block",
-      scrollback: 10000,
-      tabStopWidth: 4,
-    });
+    // Wait for the next tick to ensure DOM is fully rendered
+    const initTerminal = () => {
+      if (!terminalRef.current) return;
 
-    // Initialize fit addon
-    fitAddon.current = new FitAddon();
-    terminal.current.loadAddon(fitAddon.current);
+      // Check if element has dimensions
+      const rect = terminalRef.current.getBoundingClientRect();
+      if (rect.width === 0 || rect.height === 0) {
+        // Element not ready, try again
+        requestAnimationFrame(initTerminal);
+        return;
+      }
 
-    // Open terminal in DOM element
-    terminal.current.open(terminalRef.current);
+      // Initialize xterm terminal
+      terminal.current = new Terminal({
+        theme: {
+          background: "#1e1e1e",
+          foreground: "#ffffff",
+          cursor: "#ffffff",
+          cursorAccent: "#000000",
+          black: "#1e1e1e",
+          red: "#f14c4c",
+          green: "#23d18b",
+          yellow: "#f5f543",
+          blue: "#3b8eea",
+          magenta: "#d670d6",
+          cyan: "#29b8db",
+          white: "#e5e5e5",
+          brightBlack: "#666666",
+          brightRed: "#f14c4c",
+          brightGreen: "#23d18b",
+          brightYellow: "#f5f543",
+          brightBlue: "#3b8eea",
+          brightMagenta: "#d670d6",
+          brightCyan: "#29b8db",
+          brightWhite: "#ffffff",
+        },
+        fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
+        fontSize: 13,
+        lineHeight: 1.2,
+        cursorBlink: true,
+        cursorStyle: "block",
+        scrollback: 10000,
+        tabStopWidth: 4,
+      });
 
-    // Add a small delay before fitting to ensure DOM is ready
-    setTimeout(() => {
-      if (fitAddon.current && terminal.current) {
-        try {
-          fitAddon.current.fit();
-        } catch (error) {
-          console.warn("Terminal fit error:", error);
+      // Initialize fit addon
+      fitAddon.current = new FitAddon();
+      terminal.current.loadAddon(fitAddon.current);
+
+      // Open terminal in DOM element
+      terminal.current.open(terminalRef.current);
+
+      // Fit terminal to container
+      try {
+        fitAddon.current.fit();
+        setIsTerminalReady(true);
+      } catch (error) {
+        console.warn("Terminal fit error:", error);
+        // If fit fails, try again after a short delay
+        setTimeout(() => {
+          if (fitAddon.current && terminal.current) {
+            try {
+              fitAddon.current.fit();
+              setIsTerminalReady(true);
+            } catch (retryError) {
+              console.error("Terminal fit retry failed:", retryError);
+            }
+          }
+        }, 100);
+      }
+
+      // Handle keyboard shortcuts
+      terminal.current.onKey(({ key, domEvent }) => {
+        // Clear terminal on Cmd+K or Ctrl+K
+        if ((domEvent.metaKey || domEvent.ctrlKey) && domEvent.key === "k") {
+          domEvent.preventDefault();
+          terminal.current?.clear();
         }
-      }
-    }, 100);
+      });
+    };
 
-    // Handle keyboard shortcuts
-    terminal.current.onKey(({ key, domEvent }) => {
-      // Clear terminal on Cmd+K or Ctrl+K
-      if ((domEvent.metaKey || domEvent.ctrlKey) && domEvent.key === "k") {
-        domEvent.preventDefault();
-        terminal.current?.clear();
-      }
-    });
+    // Start initialization
+    initTerminal();
 
     // Set up SSE connection
     const connectToSSE = () => {
@@ -88,13 +113,17 @@ const LogTerminal: React.FC<LogTerminalProps> = ({ index }) => {
 
       eventSource.current.onmessage = (event) => {
         const message = event.data + "\r\n";
-        terminal.current?.write(message);
+        if (terminal.current && isTerminalReady) {
+          terminal.current.write(message);
+        }
       };
 
       eventSource.current.onerror = (error) => {
         console.error("SSE Error:", error);
         setConnectionStatus("error");
-        terminal.current?.write("\r\n[CONNECTION ERROR] Failed to connect to log stream\r\n");
+        if (terminal.current && isTerminalReady) {
+          terminal.current.write("\r\n[CONNECTION ERROR] Failed to connect to log stream\r\n");
+        }
 
         // Attempt to reconnect after 3 seconds
         setTimeout(() => {
@@ -110,8 +139,12 @@ const LogTerminal: React.FC<LogTerminalProps> = ({ index }) => {
 
     // Handle window resize
     const handleResize = () => {
-      if (fitAddon.current && terminal.current) {
-        fitAddon.current.fit();
+      if (fitAddon.current && terminal.current && isTerminalReady) {
+        try {
+          fitAddon.current.fit();
+        } catch (error) {
+          console.warn("Resize fit error:", error);
+        }
       }
     };
 
@@ -196,6 +229,7 @@ const LogTerminal: React.FC<LogTerminalProps> = ({ index }) => {
         ref={terminalRef}
         style={{
           flex: 1,
+          minHeight: "200px",
           backgroundColor: "#1e1e1e",
           overflow: "hidden",
         }}
