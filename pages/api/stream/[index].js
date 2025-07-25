@@ -28,76 +28,23 @@ export default function handler(req, res) {
     try {
       if (fs.existsSync(path)) {
         logFilePath = path;
+        console.log(`Found log file: ${path}`);
         break;
+      } else {
+        console.log(`Log file not found: ${path}`);
       }
     } catch (error) {
       console.log(`Cannot access ${path}: ${error.message}`);
     }
   }
 
+  // Check if we found a log file
   if (!logFilePath) {
-    // If no log file exists, try to create one and start a log collection process
-    logFilePath = `/tmp/threshold-ecdsa-web-${index}.log`;
-
-    // Send initial message
-    res.write(`data: [INFO] No existing log file found. Creating new log file at ${logFilePath}\n\n`);
-    res.write(`data: [INFO] Starting log collection for threshold-ecdsa-web@${index}...\n\n`);
-
-    // Start a process to collect logs and write to file
-    const logCollector = spawn('sh', ['-c', `
-      # Create log directory if it doesn't exist
-      mkdir -p $(dirname ${logFilePath})
-      
-      # Try to collect logs using various methods and write to file
-      while true; do
-        # Try journalctl first
-        if command -v journalctl >/dev/null 2>&1; then
-          journalctl -u threshold-ecdsa-web@${index}.service -f --output=cat 2>/dev/null || \
-          sudo journalctl -u threshold-ecdsa-web@${index}.service -f --output=cat 2>/dev/null || \
-          echo "[$(date '+%Y-%m-%d %H:%M:%S')] [INFO] No journalctl access, trying alternative methods..."
-        fi
-        
-        # Try to read from system log files
-        tail -f /var/log/syslog | grep "threshold-ecdsa-web" 2>/dev/null || \
-        tail -f /var/log/messages | grep "threshold-ecdsa-web" 2>/dev/null || \
-        echo "[$(date '+%Y-%m-%d %H:%M:%S')] [INFO] Waiting for logs..."
-        
-        sleep 5
-      done
-    `], {
-      stdio: ['ignore', 'pipe', 'pipe']
-    });
-
-    // Stream the collected logs
-    logCollector.stdout.on('data', (data) => {
-      const lines = data.toString().split('\n');
-      for (const line of lines) {
-        if (line.trim()) {
-          res.write(`data: ${line}\n\n`);
-        }
-      }
-    });
-
-    logCollector.stderr.on('data', (data) => {
-      const errorMsg = data.toString();
-      console.error(`Log collector stderr: ${errorMsg}`);
-      res.write(`data: [ERROR] ${errorMsg}\n\n`);
-    });
-
-    logCollector.on('close', (code) => {
-      console.log(`Log collector process exited with code ${code}`);
-      res.write(`data: [INFO] Log collection ended with code ${code}\n\n`);
-      res.end();
-    });
-
-    // Handle client disconnect
-    req.on('close', () => {
-      console.log(`Client disconnected from threshold-ecdsa-web@${index} log stream`);
-      if (logCollector && !logCollector.killed) {
-        logCollector.kill();
-      }
-    });
-
+    console.error(`No log file found for index ${index}`);
+    res.write(`data: [ERROR] No log file found for threshold-ecdsa-web@${index}\n\n`);
+    res.write(`data: [INFO] Checked paths: ${logFilePaths.join(', ')}\n\n`);
+    res.write(`data: [INFO] Please ensure the log file exists and is accessible\n\n`);
+    res.end();
     return;
   }
 
@@ -125,9 +72,13 @@ export default function handler(req, res) {
       }
     });
     res.write(`data: [INFO] Live log stream started\n\n`);
+  }).catch(error => {
+    console.error('Error loading history:', error);
+    res.write(`data: [ERROR] Failed to load log history: ${error.message}\n\n`);
   });
 
   // Use tail -f to follow the log file
+  console.log(`Starting tail process for: ${logFilePath}`);
   const tailProcess = spawn('tail', ['-f', logFilePath], {
     stdio: ['ignore', 'pipe', 'pipe']
   });

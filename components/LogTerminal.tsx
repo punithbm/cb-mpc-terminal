@@ -11,7 +11,7 @@ const LogTerminal: React.FC<LogTerminalProps> = ({ index }) => {
   const terminalRef = useRef<HTMLDivElement>(null);
   const terminal = useRef<Terminal | null>(null);
   const fitAddon = useRef<FitAddon | null>(null);
-  const eventSource = useRef<EventSource | null>(null);
+  const websocket = useRef<WebSocket | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<"connecting" | "connected" | "error" | "disconnected">("connecting");
   const [isTerminalReady, setIsTerminalReady] = useState(false);
   const [isContainerReady, setIsContainerReady] = useState(false);
@@ -135,39 +135,85 @@ const LogTerminal: React.FC<LogTerminalProps> = ({ index }) => {
   useEffect(() => {
     if (!isTerminalReady) return;
 
-    // Set up SSE connection
-    const connectToSSE = () => {
-      setConnectionStatus("connecting");
-      eventSource.current = new EventSource(`/api/stream/${index}`);
+    console.log(`Terminal ready, connecting to WebSocket for index: ${index}`);
 
-      eventSource.current.onopen = () => {
+    // Set up WebSocket connection
+    const connectToWebSocket = () => {
+      // Use your server's WebSocket URL - adjust this to match your setup
+      const wsUrl = `ws://your-server-ip:3005`; // Replace with your actual server IP
+      console.log(`Attempting to connect to ${wsUrl}`);
+      setConnectionStatus("connecting");
+
+      websocket.current = new WebSocket(wsUrl);
+
+      websocket.current.onopen = () => {
+        console.log("WebSocket connection opened successfully");
         setConnectionStatus("connected");
+
+        // Subscribe to logs for this index
+        websocket.current?.send(
+          JSON.stringify({
+            type: "subscribe",
+            index: index,
+          })
+        );
       };
 
-      eventSource.current.onmessage = (event) => {
-        const message = event.data + "\r\n";
-        if (terminal.current) {
-          terminal.current.write(message);
+      websocket.current.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          console.log("WebSocket message received:", data);
+
+          if (terminal.current) {
+            switch (data.type) {
+              case "history":
+                terminal.current.write(`\r\n[INFO] Loading recent log history...\r\n`);
+                data.lines.forEach((line: string) => {
+                  terminal.current?.write(`${line}\r\n`);
+                });
+                break;
+              case "log":
+                terminal.current.write(`${data.line}\r\n`);
+                break;
+              case "info":
+                terminal.current.write(`\r\n[INFO] ${data.message}\r\n`);
+                break;
+              case "error":
+                terminal.current.write(`\r\n[ERROR] ${data.message}\r\n`);
+                break;
+              case "subscribed":
+                terminal.current.write(`\r\n[INFO] Subscribed to logs for index ${data.index}\r\n`);
+                break;
+            }
+          }
+        } catch (error) {
+          console.error("Error parsing WebSocket message:", error);
         }
       };
 
-      eventSource.current.onerror = (error) => {
-        console.error("SSE Error:", error);
+      websocket.current.onerror = (error) => {
+        console.error("WebSocket Error:", error);
         setConnectionStatus("error");
         if (terminal.current) {
           terminal.current.write("\r\n[CONNECTION ERROR] Failed to connect to log stream\r\n");
         }
+      };
+
+      websocket.current.onclose = (event) => {
+        console.log("WebSocket connection closed:", event.code, event.reason);
+        setConnectionStatus("disconnected");
 
         // Attempt to reconnect after 3 seconds
         setTimeout(() => {
-          if (eventSource.current?.readyState !== EventSource.OPEN) {
-            connectToSSE();
+          if (websocket.current?.readyState !== WebSocket.OPEN) {
+            console.log("Attempting to reconnect...");
+            connectToWebSocket();
           }
         }, 3000);
       };
     };
 
-    connectToSSE();
+    connectToWebSocket();
 
     // Handle window resize
     const handleResize = () => {
@@ -185,8 +231,8 @@ const LogTerminal: React.FC<LogTerminalProps> = ({ index }) => {
     // Cleanup function
     return () => {
       window.removeEventListener("resize", handleResize);
-      if (eventSource.current) {
-        eventSource.current.close();
+      if (websocket.current) {
+        websocket.current.close();
       }
     };
   }, [index, isTerminalReady]);
