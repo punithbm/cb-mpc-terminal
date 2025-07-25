@@ -76,20 +76,18 @@ const LogTerminal: React.FC<LogTerminalProps> = ({ index }) => {
           brightWhite: "#f0f6fc",
         },
         fontFamily: '"JetBrains Mono", "Fira Code", "SF Mono", Monaco, Consolas, "Ubuntu Mono", monospace',
-        fontSize: 14, // Increased from 13
-        fontWeight: "400", // Normal weight
-        fontWeightBold: "600", // Semi-bold for bold text
-        lineHeight: 1.4, // Increased line height for better readability
-        letterSpacing: 0.5, // Slight letter spacing
+        fontSize: 12, // Smaller font for grid layout
+        fontWeight: "400",
+        fontWeightBold: "600",
+        lineHeight: 1.3, // Slightly tighter line height
+        letterSpacing: 0.3, // Reduced letter spacing
         cursorBlink: true,
         cursorStyle: "block",
-        cursorWidth: 2, // Thicker cursor
-        scrollback: 10000,
+        cursorWidth: 1, // Thinner cursor for smaller terminals
+        scrollback: 5000, // Reduced scrollback for performance
         tabStopWidth: 4,
-        allowTransparency: false, // Disable transparency for better contrast
-        cols: 80,
-        rows: 24,
-        // Additional readability options
+        allowTransparency: false,
+        // Remove fixed cols/rows to let it auto-size
         smoothScrollDuration: 0,
         fastScrollModifier: "alt",
         fastScrollSensitivity: 5,
@@ -331,56 +329,62 @@ const LogTerminal: React.FC<LogTerminalProps> = ({ index }) => {
   };
 
   return (
-    <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
+    <div
+      style={{
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        minHeight: 0, // Important for grid layout
+      }}
+    >
       {/* Header Bar */}
       <div
         style={{
-          height: "40px",
-          backgroundColor: "#21262d", // Darker, more modern background
-          color: "#f0f6fc", // Brighter white for better contrast
+          height: "32px", // Reduced height for grid layout
+          backgroundColor: "#21262d",
+          color: "#f0f6fc",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          padding: "0 16px",
-          fontSize: "14px",
-          fontFamily: '"JetBrains Mono", "Fira Code", "SF Mono", Monaco, Consolas, monospace', // Same font as terminal
+          padding: "0 12px", // Reduced padding
+          fontSize: "14px", // Smaller font for grid
+          fontFamily: '"JetBrains Mono", "Fira Code", "SF Mono", Monaco, Consolas, monospace',
           fontWeight: "500",
-          letterSpacing: "0.3px", // Slight letter spacing for readability
-          borderBottom: "1px solid #30363d", // Softer border color
-          boxShadow: "0 1px 0 rgba(255, 255, 255, 0.03)", // Subtle highlight
+          letterSpacing: "0.3px",
+          borderBottom: "1px solid #30363d",
+          boxShadow: "0 1px 0 rgba(255, 255, 255, 0.03)",
         }}
       >
         <span
           style={{
-            fontSize: "18px",
-            fontWeight: "600", // Semi-bold for the title
-            color: "#58a6ff", // Blue accent color for the title
+            fontWeight: "600",
+            color: "#58a6ff",
           }}
         >
-          Cb MPC Party #{index} Logs
+          Party #{index}
         </span>
         <div
           style={{
             display: "flex",
             alignItems: "center",
-            gap: "8px",
-            fontSize: "12px",
-            fontWeight: "400", // Normal weight for status
+            gap: "6px", // Reduced gap
+            fontSize: "12px", // Smaller status text
+            fontWeight: "400",
           }}
         >
           <div
             style={{
-              width: "8px",
-              height: "8px",
+              width: "6px", // Smaller indicator
+              height: "6px",
               borderRadius: "50%",
               backgroundColor: getStatusColor(),
-              boxShadow: `0 0 4px ${getStatusColor()}33`, // Subtle glow effect
+              boxShadow: `0 0 3px ${getStatusColor()}33`,
             }}
           />
           <span
             style={{
               fontSize: "12px",
-              color: "#8b949e", // Muted color for status text
+              color: "#8b949e",
               fontFamily: '"JetBrains Mono", monospace',
             }}
           >
@@ -392,13 +396,12 @@ const LogTerminal: React.FC<LogTerminalProps> = ({ index }) => {
       {/* Terminal */}
       <div
         ref={terminalRef}
-        className="terminal-container" // Make sure this class is here
+        className="terminal-container"
         style={{
           flex: 1,
-          minHeight: "400px",
-          height: "calc(100vh - 64px)",
+          minHeight: 0, // Important for grid layout
           width: "100%",
-          backgroundColor: "#0d1117", // Match the terminal background
+          backgroundColor: "#0d1117",
           overflow: "hidden",
           position: "relative",
           display: "block",
@@ -415,56 +418,40 @@ const LogTerminal: React.FC<LogTerminalProps> = ({ index }) => {
               top: "50%",
               left: "50%",
               transform: "translate(-50%, -50%)",
-              color: "#e6edf3", // Updated color
-              fontSize: "14px",
+              color: "#e6edf3",
+              fontSize: "14px", // Smaller loading text
               fontFamily: '"JetBrains Mono", monospace',
               zIndex: 1,
             }}
           >
-            {!isContainerReady ? "Initializing terminal..." : "Loading terminal..."}
+            {!isContainerReady ? "Initializing..." : "Loading..."}
           </div>
         )}
       </div>
 
-      {/* Help text */}
+      {/* Help text - make it smaller for grid layout */}
       <div
         style={{
-          height: "24px",
-          backgroundColor: "#161b22", // Darker background
-          color: "#7d8590", // Muted text color
+          height: "20px", // Reduced height
+          backgroundColor: "#161b22",
+          color: "#7d8590",
           display: "flex",
           alignItems: "center",
-          padding: "0 16px",
-          fontSize: "11px",
-          fontFamily: '"JetBrains Mono", "Fira Code", monospace', // Consistent font
-          letterSpacing: "0.2px",
-          borderTop: "1px solid #21262d", // Softer border
+          justifyContent: "center", // Center the text
+          padding: "0 8px",
+          fontSize: "12px", // Smaller font
+          fontFamily: '"JetBrains Mono", "Fira Code", monospace',
+          letterSpacing: "0.1px",
+          borderTop: "1px solid #21262d",
         }}
       >
-        Press{" "}
-        <span
-          style={{
-            color: "#58a6ff",
-            fontWeight: "500",
-            padding: "0 2px",
-          }}
-        >
-          ⌘+K
-        </span>{" "}
-        (Mac) or{" "}
-        <span
-          style={{
-            color: "#58a6ff",
-            fontWeight: "500",
-            padding: "0 2px",
-          }}
-        >
-          Ctrl+K
-        </span>{" "}
-        (Windows/Linux) to clear terminal
+        <span style={{ color: "#58a6ff", fontWeight: "500" }}>⌘+K</span>
+        <span style={{ margin: "0 4px" }}>/</span>
+        <span style={{ color: "#58a6ff", fontWeight: "500" }}>Ctrl+K</span>
+        <span style={{ marginLeft: "4px" }}>to clear</span>
       </div>
     </div>
   );
-};
+}; // This closes the component function
 
-export default LogTerminal;
+export default LogTerminal; // Only one export statement

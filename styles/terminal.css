@@ -46,3 +46,82 @@
 .terminal-container ::selection {
   background-color: #264f78;
 }
+
+/* Grid layout responsive design */
+@media (max-width: 1200px) {
+  .logs-dashboard-grid {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: repeat(4, 1fr) !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .logs-dashboard-header h1 {
+    font-size: 16px !important;
+  }
+}
+
+/* Improve terminal rendering in grid */
+.terminal-container .xterm {
+  padding: 4px;
+}
+
+.terminal-container .xterm-viewport {
+  scrollbar-width: thin;
+}
+
+/* Mobile-specific improvements */
+@media (max-width: 768px) {
+  /* Improve touch targets */
+  .terminal-cards a {
+    min-height: 60px;
+    padding: 16px !important;
+  }
+
+  /* Better spacing on mobile */
+  .dashboard-card {
+    margin-bottom: 24px !important;
+  }
+
+  /* Prevent horizontal scroll */
+  body {
+    overflow-x: hidden;
+  }
+
+  /* Improve text readability on mobile */
+  * {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Extra small screens */
+  .features-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+
+  .terminal-cards {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Touch device improvements */
+@media (hover: none) and (pointer: coarse) {
+  /* Remove hover effects on touch devices */
+  .card-hover-effect {
+    transform: none !important;
+  }
+}
+
+/* Landscape mobile orientation */
+@media (max-width: 768px) and (orientation: landscape) {
+  .main-header h1 {
+    font-size: 24px !important;
+  }
+
+  .main-header p {
+    font-size: 14px !important;
+  }
+}
