@@ -3,9 +3,6 @@ import dynamic from "next/dynamic";
 import Head from "next/head";
 import { useState, useRef } from "react";
 
-// Import the type separately
-import type { LogTerminalRef } from "../../components/LogTerminal";
-
 // Dynamic import to avoid SSR issues with xterm
 const LogTerminal = dynamic(() => import("../../components/LogTerminal"), {
   ssr: false,
