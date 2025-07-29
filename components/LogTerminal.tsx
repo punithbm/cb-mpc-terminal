@@ -5,9 +5,10 @@ import "xterm/css/xterm.css";
 
 interface LogTerminalProps {
   index: string;
+  onRegister?: (terminalRef: { clear: () => void }) => void;
 }
 
-const LogTerminal: React.FC<LogTerminalProps> = ({ index }) => {
+const LogTerminal: React.FC<LogTerminalProps> = ({ index, onRegister }) => {
   const terminalRef = useRef<HTMLDivElement>(null);
   const terminal = useRef<Terminal | null>(null);
   const fitAddon = useRef<FitAddon | null>(null);
@@ -16,6 +17,19 @@ const LogTerminal: React.FC<LogTerminalProps> = ({ index }) => {
   const [isTerminalReady, setIsTerminalReady] = useState(false);
   const [isContainerReady, setIsContainerReady] = useState(false);
   const initAttempted = useRef(false);
+
+  // Register this terminal instance with the parent when terminal is ready
+  useEffect(() => {
+    if (isTerminalReady && terminal.current && onRegister) {
+      onRegister({
+        clear: () => {
+          if (terminal.current) {
+            terminal.current.clear();
+          }
+        },
+      });
+    }
+  }, [isTerminalReady, onRegister]);
 
   // Check if container is ready using useLayoutEffect
   useLayoutEffect(() => {
