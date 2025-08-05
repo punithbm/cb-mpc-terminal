@@ -44,20 +44,6 @@ Real-time monitoring dashboard for **Threshold ECDSA Web Services** with 4-party
    - Unified view: `/terminal/logs`
    - Individual terminals: `/terminal/{0-3}`
 
-## 🔧 Configuration
-
-Update log file paths in `log-server.js`:
-```javascript
-const logFilePath = `/var/log/threshold-ecdsa-web/threshold-ecdsa-web-${index}.log`;
-```
-
-## 🚀 Deployment
-
-```bash
-# Using PM2
-npm install -g pm2
-npm run pm2:start
-```
 
 ---
 
