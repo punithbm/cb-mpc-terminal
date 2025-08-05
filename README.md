@@ -8,10 +8,8 @@ Real-time monitoring dashboard for **Threshold ECDSA Web Services** with 4-party
 
 ## Screenshots
 
-### Unified Dashboard - All 4 Parties
 ![Unified Dashboard](public/assets/screen_1.png)
 
-### Individual Terminal View
 ![Individual Terminal](public/assets/screen_2.png)
 
 ## ✨ Features
