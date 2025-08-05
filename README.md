@@ -1,15 +1,26 @@
-# CB MPC Terminal
+## CB MPC Terminal Dashboard
 
-A Next.js web application that provides real-time streaming of systemd journal logs through web terminals.
+Real-time monitoring dashboard for **Threshold ECDSA Web Services** with 4-party MPC setup. Monitor signature operations and logs across all MPC parties.
 
-## Features
+## Live Demo
 
-- **Real-time Log Streaming**: Uses Server-Sent Events (SSE) to stream `journalctl` output
-- **Terminal Interface**: Full-featured terminal using xterm.js with dark theme
-- **Dynamic Routes**: Access any service index via `/terminal/{index}`
+**Hosted:** [https://logs.cb-mpc.surge.dev/](https://logs.cb-mpc.surge.dev/)
+
+## Screenshots
+
+### Unified Dashboard - All 4 Parties
+![Unified Dashboard](public/assets/screen_1.png)
+
+### Individual Terminal View
+![Individual Terminal](public/assets/screen_2.png)
+
+## ✨ Features
+
+- **Unified Dashboard**: View all 4 parties in a grid layout
+- **Individual Terminals**: Access dedicated terminals for each party
+- **Real-time Streaming**: Live log updates via WebSocket connections
+- **Auto-reconnection**: Automatic reconnection on connection loss
 - **Keyboard Shortcuts**: Clear terminal with ⌘+K or Ctrl+K
-- **Auto-reconnection**: Automatically reconnects if SSE connection is lost
-- **Responsive Design**: Terminals fit to container size
 
 ## Quick Start
 
@@ -18,19 +29,36 @@ A Next.js web application that provides real-time streaming of systemd journal l
    npm install
    ```
 
-2. **Run development server:**
+2. **Start log streaming server:**
+   ```bash
+   node log-server.js
+   ```
+
+3. **Start the application:**
    ```bash
    npm run dev
    ```
 
-3. **Open browser:**
-   - Navigate to `http://localhost:3000`
-   - Click on any terminal link to view logs
-   - Or go directly to `/terminal/{index}` (e.g., `/terminal/1`)
+4. **Access dashboard:**
+   - Main: [http://localhost:3000](http://localhost:3000)
+   - Unified view: `/terminal/logs`
+   - Individual terminals: `/terminal/{0-3}`
 
-## Project Structure
+## 🔧 Configuration
 
+Update log file paths in `log-server.js`:
+```javascript
+const logFilePath = `/var/log/threshold-ecdsa-web/threshold-ecdsa-web-${index}.log`;
 ```
-├── components/
-│   └── LogTerminal.tsx      
+
+## 🚀 Deployment
+
+```bash
+# Using PM2
+npm install -g pm2
+npm run pm2:start
 ```
+
+---
+
+**Built with ❤️ for secure MPC operations**
